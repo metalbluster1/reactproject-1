@@ -1,12 +1,51 @@
-import React from 'react'
+import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
+import { BrowserRouter, Switch, Route } from 'react-router-dom'
+import Axios from 'axios'
+Axios.defaults.baseURL = 'http://localhost:8080'
 
-function Example() {
+import Header from './components/Header'
+import HomeGuest from './components/HomeGuest'
+import Footer from './components/Footer'
+import About from './components/About'
+import Terms from './components/Terms'
+import Home from './components/Home'
+import CreatePost from './components/CreatePost'
+import ViewSinglePost from './components/ViewSinglePost'
+import FlashMessages from './components/FlashMessages'
+
+
+function Main() {
+    const [loggedIn, setLoggedIn] = useState(Boolean(localStorage.getItem('complexappToken')))
+    const [flashMessages, setFlashMessages] = useState([])
+
+    function addFlashMessages(msg) {
+        setFlashMessages(prev => prev.concat(msg))
+    }
+
     return (
-        <div>
-            <h1>This is our amazing app!!</h1>
-            <p>javaScript React</p>
-        </div>
+        <BrowserRouter>
+            <FlashMessages messages={flashMessages} />
+            <Header loggedIn={loggedIn} setLoggedIn={setLoggedIn} />
+            <Switch>
+                <Route path="/" exact>
+                    {loggedIn ? <Home /> : <HomeGuest />}
+                </Route>
+                <Route path="/post/:id">
+                    <ViewSinglePost />
+                </Route>
+                <Route path="/create-post">
+                    <CreatePost addFlashMessages={addFlashMessages} />
+                </Route>
+                <Route path="/about-us">
+                    <About />
+                </Route>
+                <Route path="/terms">
+                    <Terms />
+                </Route>
+            </Switch>
+            <Footer />
+        </BrowserRouter>
     )
 }
-ReactDOM.render(<Example />, document.querySelector("#root"))
+ReactDOM.render(<Main />, document.querySelector("#app"))
