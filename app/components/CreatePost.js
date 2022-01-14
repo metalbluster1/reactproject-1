@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useContext } from "react"
 import Axios from "axios"
-import { withRouter } from 'react-router-dom'
+import { Redirect, withRouter } from 'react-router-dom'
+import DispatchContext from "../DispatchContext"
+import StateContext from "../StateContext"
 
 import Page from './Page'
 
@@ -8,19 +10,33 @@ import Page from './Page'
 function CreatePost(props) {
     const [title, setTitle] = useState()
     const [body, setBody] = useState()
+    const [wasSuccessful, setWasSuccessful] = useState(false)
+    const appDispatch = useContext(DispatchContext)
+    const appState = useContext(StateContext)
 
     async function handleSubmit(e) {
         e.preventDefault()
         try {
-            const response = await Axios.post('/create-post', { title, body, token: localStorage.getItem('complexappToken') })
+            const response = await Axios.post('/create-post', { title, body, token: appState.user.token })
             //Redirect to new post url
-            props.addFlashMessages("Congrats, you successfully created a post")
-            props.history.push(`/post/${response.data}`)
+            // appDispatch({ type: "flashMessages", value: "congrats, you created a new post." })
+            // props.history.push(`/post/${response.data}`)
             console.log("new post created")
+            setWasSuccessful(response.data)
 
         } catch (e) {
             console.log("There was a problem")
         }
+    }
+
+    useEffect(() => {
+        if (wasSuccessful) {
+            appDispatch({ type: "flashMessages", value: "Congrats, you created a new post." })
+        }
+    }, [wasSuccessful])
+
+    if (wasSuccessful) {
+        return <Redirect to={`/post/${wasSuccessful}`} />
     }
 
     return (
