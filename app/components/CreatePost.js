@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react"
 import Axios from "axios"
-import { Redirect, withRouter } from 'react-router-dom'
+import { Redirect, useNavigate } from 'react-router-dom'
 import DispatchContext from "../DispatchContext"
 import StateContext from "../StateContext"
 
@@ -8,6 +8,8 @@ import Page from './Page'
 
 
 function CreatePost(props) {
+
+    const navigate = useNavigate()
     const [title, setTitle] = useState()
     const [body, setBody] = useState()
     const [wasSuccessful, setWasSuccessful] = useState(false)
@@ -36,7 +38,8 @@ function CreatePost(props) {
     }, [wasSuccessful])
 
     if (wasSuccessful) {
-        return <Redirect to={`/post/${wasSuccessful}`} />
+        // return <Redirect to={`/post/${wasSuccessful}`} />
+        return navigate(`/post/${wasSuccessful}`)
     }
 
     return (
@@ -62,4 +65,5 @@ function CreatePost(props) {
     )
 }
 
-export default withRouter(CreatePost)
+// export default withRouter(CreatePost)
+export default CreatePost

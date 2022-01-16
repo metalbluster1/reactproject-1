@@ -1,7 +1,7 @@
 import React, { useState, useReducer, useEffect } from 'react'
 import ReactDOM from 'react-dom'
 import { useImmerReducer } from 'use-immer'
-import { BrowserRouter, Switch, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Axios from 'axios'
 Axios.defaults.baseURL = 'http://localhost:8080'
 
@@ -19,6 +19,7 @@ import ViewSinglePost from './components/ViewSinglePost'
 import FlashMessages from './components/FlashMessages'
 import Profile from './components/Profile'
 import EditPost from './components/EditPost'
+import NotFound from './components/NotFound'
 
 
 
@@ -80,29 +81,16 @@ function Main() {
                 <BrowserRouter>
                     <FlashMessages messages={state.flashMessages} />
                     <Header />
-                    <Switch>
-                        <Route path="/profile/:username">
-                            <Profile />
-                        </Route>
-                        <Route path="/" exact>
-                            {state.loggedIn ? <Home /> : <HomeGuest />}
-                        </Route>
-                        <Route path="/post/:id" exact>
-                            <ViewSinglePost />
-                        </Route>
-                        <Route path="/post/:id/edit" exact>
-                            <EditPost />
-                        </Route>
-                        <Route path="/create-post">
-                            <CreatePost />
-                        </Route>
-                        <Route path="/about-us">
-                            <About />
-                        </Route>
-                        <Route path="/terms">
-                            <Terms />
-                        </Route>
-                    </Switch>
+                    <Routes>
+                        <Route path="/profile/:username" element={<Profile />} />
+                        <Route path="/" element={state.loggedIn ? <Home /> : <HomeGuest />} />                        <Route path="/post/:id" element={<ViewSinglePost />} />
+                        <Route path="/post/:id/edit" element={<EditPost />} />
+                        <Route path="/create-post" element={<CreatePost />} />
+                        <Route path="/about-us" element={<About />} />
+                        <Route path="/terms" element={<Terms />} />
+                        <Route path="*" element={<NotFound />} />
+
+                    </Routes>
                     <Footer />
                 </BrowserRouter>
             </DispatchContext.Provider>
