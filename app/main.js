@@ -22,6 +22,7 @@ import Profile from './components/Profile'
 import EditPost from './components/EditPost'
 import NotFound from './components/NotFound'
 import Search from './components/Search'
+import Chat from './components/Chat'
 
 
 
@@ -35,7 +36,9 @@ function Main() {
             username: localStorage.getItem("complexappUsername"),
             avator: localStorage.getItem("complexappAvatar")
         },
-        isSearchOpen: false
+        isSearchOpen: false,
+        isChatOpen: false,
+        unreadChatCount: 0
     }
 
     function ourReducer(draft, action) {
@@ -59,6 +62,18 @@ function Main() {
             case "closeSearch":
                 draft.isSearchOpen = false
                 return
+            case "toggleChat":
+                draft.isChatOpen = !draft.isChatOpen
+                return
+            case "closeChat":
+                draft.isChatOpen = false
+                return
+            case "incrementUnreadChatCount":
+                draft.unreadChatCount++
+                return
+            case "clearUnreadChatCount":
+                draft.unreadChatCount = 0
+                return
         }
     }
 
@@ -77,12 +92,27 @@ function Main() {
         }
     }, [state.loggedIn])
 
-    // const [loggedIn, setLoggedIn] = useState()
-    // const [flashMessages, setFlashMessages] = useState([])
 
-    // function addFlashMessages(msg) {
-    //     setFlashMessages(prev => prev.concat(msg))
-    // }
+
+    //Check if token has expired or not on first render
+    useEffect(() => {
+        if (state.loggedIn) {
+            const ourRequest = Axios.CancelToken.source()
+            async function fetchResults() {
+                try {
+                    const response = await Axios.post("/checkToken", { token: state.user.token }, { cancelToken: ourRequest.token })
+                    if (!response.data) {
+                        dispatch({ type: "logout" })
+                        dispatch({ type: "flashMessages", value: "Your session has expired, Please log in again." })
+                    }
+                } catch (e) {
+                    console.log("There was a problem or the request was cancelled.")
+                }
+            }
+            fetchResults()
+            return () => ourRequest.cancel()
+        }
+    }, [])
 
     return (
         <StateContext.Provider value={state}>
@@ -104,6 +134,7 @@ function Main() {
                     <CSSTransition timeout={330} in={state.isSearchOpen} classNames="search-overlay" unmountOnExit>
                         <Search />
                     </CSSTransition>
+                    <Chat />
                     <Footer />
                 </BrowserRouter>
             </DispatchContext.Provider>
