@@ -13,7 +13,7 @@ function HeaderLoggedOut(props) {
     async function handleSubmit(e) {
         e.preventDefault()
         try {
-            const response = await Axios.post('http://localhost:8080/login', { username, password })
+            const response = await Axios.post('/login', { username, password })
             if (response.data) {
                 appDispatch({ type: "login", data: response.data })
                 appDispatch({ type: "flashMessages", value: "You have successfully logged in." })
